@@ -67,7 +67,6 @@ public class SoketIOUpdate : MonoBehaviour
             if (playerAnimator.GetParameter(i).type == AnimatorControllerParameterType.Bool || playerAnimator.GetParameter(i).type == AnimatorControllerParameterType.Trigger)
             {
                 oldPlayerAnimator[playerAnimator.GetParameter(i).name] = playerAnimator.GetBool(playerAnimator.GetParameter(i).name).ToString();
-                Debug.Log(playerAnimator.GetBool(playerAnimator.GetParameter(i).name));
             }
             else if (playerAnimator.GetParameter(i).type == AnimatorControllerParameterType.Float)
             {
@@ -78,7 +77,6 @@ public class SoketIOUpdate : MonoBehaviour
                 oldPlayerAnimator[playerAnimator.GetParameter(i).name] = playerAnimator.GetInteger(playerAnimator.GetParameter(i).name).ToString();
             }
         }
-        Debug.Log(oldPlayerAnimator);
     }
 
     public void TestOpen(SocketIOEvent e)
@@ -139,11 +137,17 @@ public class SoketIOUpdate : MonoBehaviour
         float rx = float.Parse(e.data.GetField("rotx").str.Replace(",", "."), CultureInfo.InvariantCulture);
         float ry = float.Parse(e.data.GetField("roty").str.Replace(",", "."), CultureInfo.InvariantCulture);
         float rz = float.Parse(e.data.GetField("rotz").str.Replace(",", "."), CultureInfo.InvariantCulture);
+        float rw = float.Parse(e.data.GetField("rotw").str.Replace(",", "."), CultureInfo.InvariantCulture);
 
-        players[e.data.GetField("id").str].transform.Find("skeleton").Find("Hips").Find("Spine").Find("Spine1").localEulerAngles = new Vector3(rx, ry, rz);
+
+        players[e.data.GetField("id").str].GetComponent<TestAnimator>().target = new Quaternion(rx, ry, rz,rw);
+
+
+        //players[e.data.GetField("id").str].GetComponent<Animator>().SetBoneLocalRotation(HumanBodyBones.Chest, Quaternion.EulerAngles(new Vector3(rx, ry, rz)));
+
+        //players[e.data.GetField("id").str].transform.Find("skeleton").Find("Hips").Find("Spine").Find("Spine1").localEulerAngles = new Vector3(rx, ry, rz);
         //players[e.data.GetField("id").str].transform.Find("Spine1").GetComponent<EnemyMovwSmooth>().setTargetRotation(new Vector3(rx, ry, rz));
     }
-
 
 
     IEnumerator SendCurrentCoords()
@@ -165,6 +169,7 @@ public class SoketIOUpdate : MonoBehaviour
             // yield return new WaitForSeconds(0.05f);
             yield return new WaitForEndOfFrame();
 
+
         }
     }
 
@@ -176,9 +181,10 @@ public class SoketIOUpdate : MonoBehaviour
             if (joined)
             {
                 var dataToSend = new JSONObject();
-                dataToSend["rx"] = JSONObject.CreateStringObject(playerSpine.transform.localEulerAngles.x.ToString());
-                dataToSend["ry"] = JSONObject.CreateStringObject(playerSpine.transform.localEulerAngles.y.ToString());
-                dataToSend["rz"] = JSONObject.CreateStringObject(playerSpine.transform.localEulerAngles.z.ToString());
+                dataToSend["x"] = JSONObject.CreateStringObject(playerSpine.transform.localRotation.x.ToString());
+                dataToSend["y"] = JSONObject.CreateStringObject(playerSpine.transform.localRotation.y.ToString());
+                dataToSend["z"] = JSONObject.CreateStringObject(playerSpine.transform.localRotation.z.ToString());
+                dataToSend["w"] = JSONObject.CreateStringObject(playerSpine.transform.localRotation.w.ToString());
                 socket.Emit("send-spine-cords", dataToSend);
             }
             // yield return new WaitForSeconds(0.05f);
@@ -242,8 +248,7 @@ public class SoketIOUpdate : MonoBehaviour
                     }
 
                 }
-            }
-
+            }  
         }
         yield return null;
     }
@@ -268,7 +273,6 @@ public class SoketIOUpdate : MonoBehaviour
 
                     var currParams = playerAnimator.GetParameter(i);
                     string variable;
-                    Debug.Log(currParams.name);
                     
                     if (currParams.type == AnimatorControllerParameterType.Bool || currParams.type == AnimatorControllerParameterType.Trigger)
                     {

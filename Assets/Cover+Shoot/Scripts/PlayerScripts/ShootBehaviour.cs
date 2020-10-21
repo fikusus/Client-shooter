@@ -92,6 +92,9 @@ public class ShootBehaviour : GenericBehaviour
 		rightHand = behaviourManager.GetAnim.GetBoneTransform(HumanBodyBones.RightHand);
 		leftArm = behaviourManager.GetAnim.GetBoneTransform(HumanBodyBones.LeftUpperArm);
 
+
+
+
 		// Set default values.
 		initialRootRotation = hips.parent.localEulerAngles;
 		initialHipsRotation = hips.localEulerAngles;
@@ -107,8 +110,10 @@ public class ShootBehaviour : GenericBehaviour
 	// Update is used to set features regardless the active behaviour.
 	private void Update()
 	{
-		// Handle shoot weapon action.
-		if (Input.GetAxisRaw(shootButton) != 0 && !isShooting && activeWeapon > 0 && burstShotCount == 0)
+        //Debug.LogWarning(behaviourManager.GetAnim.GetBoneTransform(HumanBodyBones.Chest).localEulerAngles);
+        //behaviourManager.GetAnim.GetBoneTransform(HumanBodyBones.Spine);
+        // Handle shoot weapon action.
+        if (Input.GetAxisRaw(shootButton) != 0 && !isShooting && activeWeapon > 0 && burstShotCount == 0)
 		{
 			isShooting = true;
 			ShootWeapon(activeWeapon);
@@ -423,9 +428,8 @@ public class ShootBehaviour : GenericBehaviour
 			targetRot *= Quaternion.Euler(initialSpineRotation);
 			// Set upper body horizontal orientation.
 			behaviourManager.GetAnim.SetBoneLocalRotation(HumanBodyBones.Spine, Quaternion.Inverse(hips.rotation) * targetRot);
-
-			// Keep upper body orientation regardless strafe direction.
-			float xCamRot = Quaternion.LookRotation(behaviourManager.playerCamera.forward).eulerAngles.x;
+            // Keep upper body orientation regardless strafe direction.
+            float xCamRot = Quaternion.LookRotation(behaviourManager.playerCamera.forward).eulerAngles.x;
 			targetRot = Quaternion.AngleAxis(xCamRot + armsRotation, this.transform.right);
 			if (weapons[activeWeapon] && weapons[activeWeapon].type == InteractiveWeapon.WeaponType.LONG)
 			{
